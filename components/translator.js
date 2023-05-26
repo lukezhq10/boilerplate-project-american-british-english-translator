@@ -22,7 +22,7 @@ class Translator {
     toAmericanEnglish(text) {
         const britishToAmericanSpelling = this.swap_dictionary(americanToBritishSpelling);
         let dict = {...britishOnly, ...britishToAmericanSpelling};
-        return this.translate(text, dict);
+        return this.translate(text, dict, false);
     }
 
     convertTime(string, toBritish = true) {
@@ -43,14 +43,14 @@ class Translator {
         return string;
     }
 
-    translate(text, dict) {
+    translate(text, dict, toBritish = true) {
         // loop through dict keys for spaces and hyphen cases and put key/values into another dict
-        let words = text.split(" ");
         let singleWords = {}; 
         let wordsWithSpace = {};
         let wordsWithHyphen = {};
         let titles = {...americanToBritishTitles};
-
+        
+        
         for (let key in dict) {
             if (key.includes(" ")) {
                 wordsWithSpace[key] = dict[key];
@@ -63,9 +63,56 @@ class Translator {
             }
         };
 
+        let lowercaseText = text.toLowerCase();
+        // replace words with spaces
+        for (let key in wordsWithSpace) {
+            let regex = new RegExp(key, 'gi');
+            if (regex.test(lowercaseText)) {
+                text = text.replace(regex, wordsWithSpace[key]);
+            }
+        }
+        
+        // replace words with hyphens
+        for (let key in wordsWithHyphen) {
+            let regex = new RegExp(key, 'gi');
+            if (regex.test(lowercaseText)) {
+                text = text.replace(regex, wordsWithHyphen[key]);
+            }
+        }
+
+        // translate titles
+        // for british -> american titles, don't want Mrs to be read as 'Mr'+'s' - need diff regex
+        if (toBritish === false) {
+            const britishToAmericanTitles = this.swap_dictionary(americanToBritishTitles);
+            titles = {...britishToAmericanTitles};
+            for (let key in titles) {
+                let regex = new RegExp('\\b' + key + '\\b', 'gi');
+                if (regex.test(lowercaseText)) {
+                    let matches = lowercaseText.match(regex);
+                    for (let match of matches) {
+                        let capitalizedMatch = match.charAt(0).toUpperCase() + match.slice(1);
+                        let capitalizedReplacement = titles[key].charAt(0).toUpperCase() + titles[key].slice(1);
+                        text = text.replace(capitalizedMatch, capitalizedReplacement);
+                    }
+                }
+            }
+        } else {
+            for (let key in titles) {
+                let regex = new RegExp(key, 'gi');
+                if (regex.test(lowercaseText)) {
+                    let matches = lowercaseText.match(regex);
+                    for (let match of matches) {
+                        let capitalizedMatch = match.charAt(0).toUpperCase() + match.slice(1);
+                        let capitalizedReplacement = titles[key].charAt(0).toUpperCase() + titles[key].slice(1);
+                        text = text.replace(capitalizedMatch, capitalizedReplacement);
+                    }
+                }
+            }
+        }
+        
         // replace single words
         // loop through words and check if it's in singleWords -> if yes, replace with singleWords[word]
-        
+        let words = text.split(" ");
         for (let i = 0; i < words.length; i++) {
             let word = words[i];
             let lowercaseWord = word.toLowerCase();
@@ -90,42 +137,36 @@ class Translator {
         };
 
         let translation = words.join(" ");
-        let lowercaseTranslation = translation.toLowerCase();
-
-        // replace words with spaces
-        for (let key in wordsWithSpace) {
-            let regex = new RegExp(key, 'gi');
-            if (regex.test(lowercaseTranslation)) {
-                translation = translation.replace(regex, wordsWithSpace[key]);
-            }
-        }
-        
-        // replace words with hyphens
-        for (let key in wordsWithHyphen) {
-            let regex = new RegExp(key, 'gi');
-            if (regex.test(lowercaseTranslation)) {
-                translation = translation.replace(regex, wordsWithHyphen[key]);
-            }
-        }
-
-        // translate titles
-        for (let key in titles) {
-            let regex = new RegExp(key, 'gi');
-            if (regex.test(lowercaseTranslation)) {
-                let matches = translation.match(regex);
-                for (let match of matches) {
-                    let capitalizedMatch = match.charAt(0).toUpperCase() + match.slice(1);
-                    let capitalizedReplacement = titles[key].charAt(0).toUpperCase() + titles[key].slice(1);
-                    translation = translation.replace(capitalizedMatch, capitalizedReplacement);
-                }
-            }
-        }
 
         // translate time
-        translation = this.convertTime(translation, true);
+        if (toBritish === false) {
+            translation = this.convertTime(translation, false);
+        } else {
+            translation = this.convertTime(translation, true);
+        };
 
         return translation;
     }
+
+    isTranslated(word, translatedWord, toBritish = true) {
+        if (word === translatedWord) {
+            return false;
+        } else {
+            if (toBritish) {
+                let dict = {...americanOnly, ...americanToBritishSpelling, ...americanToBritishTitles};
+                return this.translate(word, dict, toBritish = true) === translatedWord;
+            } else {
+                let dict = {...britishOnly, ...britishToAmericanSpelling, ...britishToAmericanTitles};
+                return this.translate(word, dict, toBritish = false) === translatedWord;
+            }
+        }
+
+        // issue right now is this doesn't account for words like 'condo.'
+        // word = flat. -> this is the dict value
+        // find the dict key and then run that through translate to see if it === word
+    }
+
+    // use the translator to highlight it
 
     
 }
