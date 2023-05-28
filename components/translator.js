@@ -84,7 +84,7 @@ class Translator {
         // for british -> american titles, don't want Mrs to be read as 'Mr'+'s' - need diff regex
         if (toBritish === false) {
             const britishToAmericanTitles = this.swap_dictionary(americanToBritishTitles);
-            titles = {...britishToAmericanTitles};
+            let titles = {...britishToAmericanTitles};
             for (let key in titles) {
                 let regex = new RegExp('\\b' + key + '\\b', 'gi');
                 if (regex.test(lowercaseText)) {
@@ -148,27 +148,76 @@ class Translator {
         return translation;
     }
 
-    isTranslated(word, translatedWord, toBritish = true) {
-        if (word === translatedWord) {
-            return false;
-        } else {
-            if (toBritish) {
-                let dict = {...americanOnly, ...americanToBritishSpelling, ...americanToBritishTitles};
-                return this.translate(word, dict, toBritish = true) === translatedWord;
-            } else {
-                let dict = {...britishOnly, ...britishToAmericanSpelling, ...britishToAmericanTitles};
-                return this.translate(word, dict, toBritish = false) === translatedWord;
+    highlight(translation, toBritish = true) {
+        if (toBritish === true) {
+            let dict = {...americanOnly, ...americanToBritishSpelling};
+            let titles = {...americanToBritishTitles};
+
+            // highlight translated words
+            for (let key in dict) {
+                let regex = new RegExp(this.translate(key, dict, true), 'gi');
+                translation = translation.replace(regex, `<span class="highlight">${dict[key]}</span>`);
             }
-        }
 
-        // issue right now is this doesn't account for words like 'condo.'
-        // word = flat. -> this is the dict value
-        // find the dict key and then run that through translate to see if it === word
-    }
+            // highlight translated titles
+            for (let key in titles) {
+                let regex = new RegExp(this.translate(key, titles, true), 'gi');
+                if (regex.test(translation)) {
+                    let matches = translation.match(regex);
+                    for (let match of matches) {
+                        let capitalizedMatch = match.charAt(0).toUpperCase() + match.slice(1);
+                        let capitalizedReplacement = titles[key].charAt(0).toUpperCase() + titles[key].slice(1);
+                        translation = translation.replace(capitalizedMatch, `<span class="highlight">${capitalizedReplacement} </span>`);
+                    }
+                }
+            }
 
-    // use the translator to highlight it
+            // highlight translated time
+            let regex = /\b(\d{1,2})\.(\d{2})\b/g;
+            if (regex.test(translation)) {
+                translation = translation.replace(regex, `<span class="highlight">${"$1.$2"} </span>` )
+            }
 
-    
-}
+            console.log('highlight function:', translation);
+            return translation;
+        } 
+        
+        if (!toBritish) {
+            const britishToAmericanSpelling = this.swap_dictionary(americanToBritishSpelling);
+            const britishToAmericanTitles = this.swap_dictionary(americanToBritishTitles);
+            let dict = {...britishOnly, ...britishToAmericanSpelling};
+            let titles = {...britishToAmericanTitles};
+            console.log(titles);
+
+            // highlight translated words
+            for (let key in dict) {
+                let regex = new RegExp(this.translate(key, dict, true), 'gi');
+                translation = translation.replace(regex, `<span class="highlight">${dict[key]}</span>`);
+            }
+
+            // highlight translated titles
+            for (let key in titles) {
+                let regex = new RegExp('\\b' + key + '\\b', 'gi');
+                console.log(regex);
+                if (regex.test(translation)) {
+                    let matches = translation.match(regex);
+                    console.log(matches);
+                    for (let match of matches) {
+                        translation = translation.replace(regex, `<span class="highlight">${match}</span>`);
+                    }
+                }
+            }
+
+            // highlight translated time
+            let regex = /\b(\d{1,2}):(\d{2})\b/g;
+            if (regex.test(translation)) {
+                translation = translation.replace(regex, `<span class="highlight">${"$1:$2"} </span>` )
+            }
+            console.log('highlight function:', translation);
+            return translation;
+        };
+    };
+
+};
 
 module.exports = Translator;

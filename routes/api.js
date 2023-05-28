@@ -9,40 +9,29 @@ module.exports = function (app) {
   app.route('/api/translate')
     .post((req, res) => {
       let { text, locale } = req.body;
-      if (locale === 'american-to-british') {
-        let words = text.split(" ");
+      if (locale == 'american-to-british') {
         let translation = translator.toBritishEnglish(text);
-        let translatedWords = translation.split(" ");
-        let highlightedTranslation = "";
-        console.log(words);
-        console.log(translatedWords);
-
-        // highlight not working for words w/ spaces:
-        // parking lot
-        // Rube Goldberg machine
-        // hooky / bunk off
-
-        for (let i = 0; i < words.length; i++) {
-          console.log(translator.isTranslated(words[i], translatedWords[i], true));
-          if (translator.isTranslated(words[i], translatedWords[i], true)) {
-            highlightedTranslation += `<span class="highlight">${translatedWords[i]}</span>` + " ";
-          } else {
-            highlightedTranslation += `${translatedWords[i]}` + " ";
-          }
-        }
-  
-        console.log(highlightedTranslation);
-        return res.send({
+        let highlightedTranslation = translator.highlight(translation, true);
+        console.log('text:', text);
+        console.log('translation:', translation);
+        console.log('highlightedTranslation:', highlightedTranslation);
+        
+        return res.json({
           text: text,
           translation: highlightedTranslation
         });
       }
 
-      if (locale === 'british-to-american') {
+      if (locale == 'british-to-american') {
         let translation = translator.toAmericanEnglish(text);
-        return res.send({
+        let highlightedTranslation = translator.highlight(translation, false);
+        console.log('text:', text);
+        console.log('translation:', translation);
+        console.log('highlightedTranslation:', highlightedTranslation);
+
+        return res.json({
           text: text,
-          translation: translation
+          translation: highlightedTranslation
         });
       }
 
