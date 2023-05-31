@@ -178,7 +178,7 @@ class Translator {
                     for (let match of matches) {
                         let capitalizedMatch = match.charAt(0).toUpperCase() + match.slice(1);
                         let capitalizedReplacement = titles[key].charAt(0).toUpperCase() + titles[key].slice(1);
-                        translation = translation.replace(capitalizedMatch, `<span class="highlight">${capitalizedReplacement} </span>`);
+                        translation = translation.replace(capitalizedMatch, `<span class="highlight">${capitalizedReplacement}</span>`);
                     }
                 }
             }
@@ -186,7 +186,7 @@ class Translator {
             // highlight translated time
             let regex = /\b(\d{1,2})\.(\d{2})\b/g;
             if (regex.test(translation)) {
-                translation = translation.replace(regex, `<span class="highlight">${"$1.$2"} </span>` )
+                translation = translation.replace(regex, `<span class="highlight">${"$1.$2"}</span>` )
             }
 
             console.log('highlight function:', translation);
@@ -222,7 +222,7 @@ class Translator {
             // highlight translated time
             let regex = /\b(\d{1,2}):(\d{2})\b/g;
             if (regex.test(translation)) {
-                translation = translation.replace(regex, `<span class="highlight">${"$1:$2"} </span>` )
+                translation = translation.replace(regex, `<span class="highlight">${"$1:$2"}</span>` )
             }
             console.log('highlight function:', translation);
             return translation;

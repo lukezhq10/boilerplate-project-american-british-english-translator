@@ -12,10 +12,10 @@ suite('Functional Tests', () => {
     suite('POST to /api/translate', () => {
         test('Translation with text and locale fields', done => {
             let body = {
-                text: 'No Mr. Bond, I expect you to die.',
+                text: 'Mangoes are my favorite fruit.',
                 locale: 'american-to-british'
             };
-            let translation = 'No <span class="highlight">Mr </span>Bond, I expect you to die.'
+            let translation = 'Mangoes are my <span class="highlight">favourite</span> fruit.'
             
             chai.request(server)
                 .post(URL)
