@@ -38,9 +38,10 @@ module.exports = function (app) {
             translation: 'Everything looks good to me!'
           });
         } else {
+          console.log(translation);
           return res.json({
             text: text,
-            translation: highlightedTranslation
+            translation: translation
           });
         }
       }
