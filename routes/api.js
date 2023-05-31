@@ -30,7 +30,6 @@ module.exports = function (app) {
 
       if (locale === 'american-to-british') {
         let translation = translator.toBritishEnglish(text);
-        let highlightedTranslation = translator.highlight(translation, true);
 
         if (text === translation) {
           return res.json({
@@ -48,7 +47,6 @@ module.exports = function (app) {
 
       if (locale === 'british-to-american') {
         let translation = translator.toAmericanEnglish(text);
-        let highlightedTranslation = translator.highlight(translation, false);
 
         if (text === translation) {
           return res.json({
@@ -58,7 +56,7 @@ module.exports = function (app) {
         } else {
           return res.json({
             text: text,
-            translation: highlightedTranslation
+            translation: translation
           });
         }
       }

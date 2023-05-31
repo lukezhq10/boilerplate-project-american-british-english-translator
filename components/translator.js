@@ -72,7 +72,7 @@ class Translator {
         for (let key in wordsWithSpace) {
             let regex = new RegExp(key, 'gi');
             if (regex.test(lowercaseText)) {
-                text = text.replace(regex, wordsWithSpace[key]);
+                text = text.replace(regex, this.highlight(wordsWithSpace[key]));
             }
         }
         
@@ -80,7 +80,7 @@ class Translator {
         for (let key in wordsWithHyphen) {
             let regex = new RegExp(key, 'gi');
             if (regex.test(lowercaseText)) {
-                text = text.replace(regex, wordsWithHyphen[key]);
+                text = text.replace(regex, this.highlight(wordsWithHyphen[key]));
             }
         }
 
