@@ -154,9 +154,20 @@ class Translator {
             let titles = {...americanToBritishTitles};
 
             // highlight translated words
+            // for (let key in dict) {
+            //     let regex = new RegExp(this.translate(key, dict, true), 'gi');
+            //     translation = translation.replace(regex, `<span class="highlight">${dict[key]}</span>`);
+            // }
+            
+            // issue right now: can't pass functional test because it works, but span is highlighting 'favour' + 'favourite'
             for (let key in dict) {
-                let regex = new RegExp(this.translate(key, dict, true), 'gi');
-                translation = translation.replace(regex, `<span class="highlight">${dict[key]}</span>`);
+                let regex = new RegExp(dict[key], 'gi');
+                if (regex.test(translation)) {
+                    let matches = translation.match(regex);
+                    for (let match of matches) {
+                        translation = translation.replace(match, `<span class="highlight">${dict[key]}</span>`);
+                    }
+                }
             }
 
             // highlight translated titles
