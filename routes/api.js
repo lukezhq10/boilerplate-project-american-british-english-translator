@@ -28,38 +28,25 @@ module.exports = function (app) {
         });
       }
 
+      let translation;
       if (locale === 'american-to-british') {
-        let translation = translator.toBritishEnglish(text);
-
-        if (text === translation) {
-          return res.json({
-            text: text,
-            translation: 'Everything looks good to me!'
-          });
-        } else {
-          console.log(translation);
-          return res.json({
-            text: text,
-            translation: translation
-          });
-        }
+        translation = translator.toBritishEnglish(text);
       }
 
       if (locale === 'british-to-american') {
-        let translation = translator.toAmericanEnglish(text);
-
-        if (text === translation) {
-          return res.json({
-            text: text,
-            translation: 'Everything looks good to me!'
-          });
-        } else {
-          return res.json({
-            text: text,
-            translation: translation
-          });
-        }
+        translation = translator.toAmericanEnglish(text);
       }
 
+      if (text === translation) {
+        return res.json({
+          text: text,
+          translation: 'Everything looks good to me!'
+        });
+      } else {
+        return res.json({
+          text: text,
+          translation: translation
+        });
+      }
     });
 };
